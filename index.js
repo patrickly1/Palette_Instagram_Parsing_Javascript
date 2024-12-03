@@ -16,6 +16,18 @@ function parseInstagramHtml(filePath, postType) {
     const url = $('link[rel="alternate"][hreflang="x-default"]').attr('href');
     const category = $('title').text() || "Not Available";
 
+    // Extract location directly
+    let location = "Not Available";
+
+    // Check if location is embedded in meta tags
+    const locationMetaTags = [description, ogDescription];
+    for (const metaTag of locationMetaTags) {
+        if (metaTag && metaTag.includes('📍')) {
+            location = metaTag.split('📍')[1].split('\n')[0].trim();
+            break;
+        }
+    }
+
     // Extract username from twitter:title
     let username = "Not Available";
     if (usernameMeta && usernameMeta.includes("@")) {
@@ -29,7 +41,8 @@ function parseInstagramHtml(filePath, postType) {
         URL: url || "Not Available",
         Category: category.trim() || "Not Available",
         Description: description || "Not Available",
-        OG_Description: ogDescription || "Not Available"
+        OG_Description: ogDescription || "Not Available",
+        Location: location
     };
 }
 
@@ -59,9 +72,7 @@ for (const [fileName, postType] of Object.entries(files)) {
 
 // Print formatted output
 output.forEach(entry => {
-    console.log("POST API CALLED {");
     for (const [key, value] of Object.entries(entry)) {
         console.log(`  ${key}: ${value}`);
     }
-    console.log("}");
 });
